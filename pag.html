@@ -68,8 +68,6 @@
         .label-text {
             display: flex;
             align-items: center;
-            font-size: 1.2em;
-            margin-right: 10px;
         }
     </style>
 </head>
@@ -111,11 +109,8 @@
                     // Add label text
                     const labelText = document.createElement("div");
                     labelText.className = "label-text";
-                    labelText.textContent = "標籤 " + (i + 1); // Replace with desired text
-
                     container.appendChild(labelText);
 
-                    // Create and append progress bar
                     const progress = document.createElement("div");
                     progress.className = "progress";
                     const progressBar = document.createElement("div");
@@ -143,7 +138,7 @@
                 const labelText = labelContainer.childNodes[i].querySelector(".label-text");
                 const progressBar = labelContainer.childNodes[i].querySelector(".progress-bar");
 
-                labelText.textContent = prediction[i].className; // Display prediction label
+                labelText.textContent = prediction[i].className;
                 progressBar.style.width = `${(prediction[i].probability * 100).toFixed(2)}%`;
                 progressBar.textContent = `${(prediction[i].probability * 100).toFixed(1)}%`;
             }

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Teachable Machine Image Model</title>
+    <title>智能測試 第一題</title>
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest/dist/teachablemachine-image.min.js"></script>
     <style>
@@ -47,12 +47,16 @@
             margin: 10px auto;
             padding: 10px;
             text-align: left;
+            display: flex;
+            align-items: center;
         }
         .progress {
             background: rgba(255, 255, 255, 0.2);
             border-radius: 5px;
             overflow: hidden;
             height: 20px;
+            flex-grow: 1;
+            margin-left: 10px;
         }
         .progress-bar {
             height: 100%;
@@ -61,11 +65,28 @@
             color: white;
             line-height: 20px;
         }
+        .shape {
+            width: 20px;
+            height: 20px;
+            display: inline-block;
+            margin-right: 10px;
+        }
+        .triangle {
+            width: 0;
+            height: 0;
+            border-left: 10px solid transparent;
+            border-right: 10px solid transparent;
+            border-bottom: 20px solid #fff;
+        }
+        .circle {
+            background: #fff;
+            border-radius: 50%;
+        }
     </style>
 </head>
 <body>
-    <h1>Teachable Machine Image Recognition</h1>
-    <button type="button" onclick="init()">Start Webcam</button>
+    <h1>智能測試 第一題</h1>
+    <button type="button" onclick="init()">開啟辨識</button>
     <div id="webcam-container"></div>
     <div id="label-container"></div>
 
@@ -97,12 +118,19 @@
                 // Create div elements for each prediction
                 for (let i = 0; i < maxPredictions; i++) {
                     const container = document.createElement("div");
+
+                    // Add a shape (triangle or circle) based on index
+                    const shape = document.createElement("div");
+                    shape.className = `shape ${i % 2 === 0 ? 'triangle' : 'circle'}`;
+                    container.appendChild(shape);
+
                     const progress = document.createElement("div");
                     progress.className = "progress";
                     const progressBar = document.createElement("div");
                     progressBar.className = "progress-bar";
                     progress.appendChild(progressBar);
                     container.appendChild(progress);
+
                     labelContainer.appendChild(container);
                 }
             } catch (error) {

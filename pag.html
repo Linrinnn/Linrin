@@ -9,7 +9,7 @@
     <style>
         body {
             font-family: 'Arial', sans-serif;
-            background: linear-gradient(to right, #4facfe, #00f2fe);
+            background: linear-gradient(to right, #ffcc80, #ffab40);
             color: #fff;
             text-align: center;
             padding: 20px;
@@ -19,7 +19,7 @@
             margin-bottom: 20px;
         }
         button {
-            background-color: #0066ff;
+            background-color: #ff6f00;
             color: #fff;
             padding: 10px 20px;
             font-size: 1.2em;
@@ -29,7 +29,7 @@
             transition: background-color 0.3s ease;
         }
         button:hover {
-            background-color: #004db3;
+            background-color: #e65100;
         }
         #webcam-container {
             margin: 20px auto;
@@ -44,11 +44,22 @@
             text-align: center;
         }
         #label-container > div {
-            background: rgba(255, 255, 255, 0.2);
             margin: 10px auto;
             padding: 10px;
+            text-align: left;
+        }
+        .progress {
+            background: rgba(255, 255, 255, 0.2);
             border-radius: 5px;
-            font-size: 1.2em;
+            overflow: hidden;
+            height: 20px;
+        }
+        .progress-bar {
+            height: 100%;
+            background-color: #ff6f00;
+            text-align: center;
+            color: white;
+            line-height: 20px;
         }
     </style>
 </head>
@@ -85,7 +96,14 @@
 
                 // Create div elements for each prediction
                 for (let i = 0; i < maxPredictions; i++) {
-                    labelContainer.appendChild(document.createElement("div"));
+                    const container = document.createElement("div");
+                    const progress = document.createElement("div");
+                    progress.className = "progress";
+                    const progressBar = document.createElement("div");
+                    progressBar.className = "progress-bar";
+                    progress.appendChild(progressBar);
+                    container.appendChild(progress);
+                    labelContainer.appendChild(container);
                 }
             } catch (error) {
                 console.error("Error initializing webcam or model:", error);
@@ -102,8 +120,9 @@
         async function predict() {
             const prediction = await model.predict(webcam.canvas);
             for (let i = 0; i < maxPredictions; i++) {
-                const classPrediction = `${prediction[i].className}: ${prediction[i].probability.toFixed(2)}`;
-                labelContainer.childNodes[i].innerHTML = classPrediction;
+                const progressBar = labelContainer.childNodes[i].querySelector(".progress-bar");
+                progressBar.style.width = `${(prediction[i].probability * 100).toFixed(2)}%`;
+                progressBar.textContent = `${(prediction[i].probability * 100).toFixed(1)}%`;
             }
         }
     </script>

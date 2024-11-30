@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>智能測試 第一題</title>
+    <title>Teachable Machine Image Model</title>
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest/dist/teachablemachine-image.min.js"></script>
     <style>
@@ -65,28 +65,20 @@
             color: white;
             line-height: 20px;
         }
-        .shape {
-            width: 20px;
-            height: 20px;
-            display: inline-block;
+        .label-text {
+            display: flex;
+            align-items: center;
+        }
+        .label-image {
+            width: 30px;
+            height: 30px;
             margin-right: 10px;
-        }
-        .triangle {
-            width: 0;
-            height: 0;
-            border-left: 10px solid transparent;
-            border-right: 10px solid transparent;
-            border-bottom: 20px solid #fff;
-        }
-        .circle {
-            background: #fff;
-            border-radius: 50%;
         }
     </style>
 </head>
 <body>
-    <h1>智能測試 第一題</h1>
-    <button type="button" onclick="init()">開啟辨識</button>
+    <h1>Teachable Machine Image Recognition</h1>
+    <button type="button" onclick="init()">Start Webcam</button>
     <div id="webcam-container"></div>
     <div id="label-container"></div>
 
@@ -94,6 +86,13 @@
         const URL = "./"; // Model directory
 
         let model, webcam, labelContainer, maxPredictions;
+
+        // Mapping of labels to images
+        const labelImages = {
+            "Label 1": "path/to/image1.png",
+            "Label 2": "path/to/image2.png",
+            "Label 3": "path/to/image3.png"
+        };
 
         async function init() {
             try {
@@ -119,10 +118,17 @@
                 for (let i = 0; i < maxPredictions; i++) {
                     const container = document.createElement("div");
 
-                    // Add a shape (triangle or circle) based on index
-                    const shape = document.createElement("div");
-                    shape.className = `shape ${i % 2 === 0 ? 'triangle' : 'circle'}`;
-                    container.appendChild(shape);
+                    // Add label text and image
+                    const labelText = document.createElement("div");
+                    labelText.className = "label-text";
+
+                    const img = document.createElement("img");
+                    img.className = "label-image";
+                    labelText.appendChild(img);
+
+                    const span = document.createElement("span");
+                    labelText.appendChild(span);
+                    container.appendChild(labelText);
 
                     const progress = document.createElement("div");
                     progress.className = "progress";
@@ -148,9 +154,22 @@
         async function predict() {
             const prediction = await model.predict(webcam.canvas);
             for (let i = 0; i < maxPredictions; i++) {
+                const labelText = labelContainer.childNodes[i].querySelector(".label-text span");
+                const img = labelContainer.childNodes[i].querySelector(".label-image");
                 const progressBar = labelContainer.childNodes[i].querySelector(".progress-bar");
+
+                labelText.textContent = prediction[i].className;
                 progressBar.style.width = `${(prediction[i].probability * 100).toFixed(2)}%`;
                 progressBar.textContent = `${(prediction[i].probability * 100).toFixed(1)}%`;
+
+                // Set the corresponding image for the label
+                if (labelImages[prediction[i].className]) {
+                    img.src = labelImages[prediction[i].className];
+                    img.alt = prediction[i].className;
+                } else {
+                    img.src = "";
+                    img.alt = "";
+                }
             }
         }
     </script>

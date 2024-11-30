@@ -68,10 +68,7 @@
         .label-text {
             display: flex;
             align-items: center;
-        }
-        .label-image {
-            width: 30px;
-            height: 30px;
+            font-size: 1.2em;
             margin-right: 10px;
         }
     </style>
@@ -86,9 +83,6 @@
         const URL = "./"; // Model directory
 
         let model, webcam, labelContainer, maxPredictions;
-
-        // Mapping of labels to images
-       
 
         async function init() {
             try {
@@ -114,18 +108,14 @@
                 for (let i = 0; i < maxPredictions; i++) {
                     const container = document.createElement("div");
 
-                    // Add label text and image
+                    // Add label text
                     const labelText = document.createElement("div");
                     labelText.className = "label-text";
+                    labelText.textContent = "標籤 " + (i + 1); // Replace with desired text
 
-                    const img = document.createElement("img");
-                    img.className = "label-image";
-                    labelText.appendChild(img);
-
-                    const span = document.createElement("span");
-                    labelText.appendChild(span);
                     container.appendChild(labelText);
 
+                    // Create and append progress bar
                     const progress = document.createElement("div");
                     progress.className = "progress";
                     const progressBar = document.createElement("div");
@@ -150,22 +140,12 @@
         async function predict() {
             const prediction = await model.predict(webcam.canvas);
             for (let i = 0; i < maxPredictions; i++) {
-                const labelText = labelContainer.childNodes[i].querySelector(".label-text span");
-                const img = labelContainer.childNodes[i].querySelector(".label-image");
+                const labelText = labelContainer.childNodes[i].querySelector(".label-text");
                 const progressBar = labelContainer.childNodes[i].querySelector(".progress-bar");
 
-                labelText.textContent = prediction[i].className;
+                labelText.textContent = prediction[i].className; // Display prediction label
                 progressBar.style.width = `${(prediction[i].probability * 100).toFixed(2)}%`;
                 progressBar.textContent = `${(prediction[i].probability * 100).toFixed(1)}%`;
-
-                // Set the corresponding image for the label
-                if (labelImages[prediction[i].className]) {
-                    img.src = labelImages[prediction[i].className];
-                    img.alt = prediction[i].className;
-                } else {
-                    img.src = "";
-                    img.alt = "";
-                }
             }
         }
     </script>

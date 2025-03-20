@@ -27,6 +27,7 @@
             border-radius: 5px;
             cursor: pointer;
             transition: background-color 0.3s ease;
+            margin: 10px;
         }
         button:hover {
             background-color: #e65100;
@@ -42,13 +43,6 @@
         #label-container {
             margin-top: 20px;
             text-align: center;
-        }
-        #label-container > div {
-            margin: 10px auto;
-            padding: 10px;
-            text-align: left;
-            display: flex;
-            align-items: center;
         }
         .progress {
             background: rgba(255, 255, 255, 0.2);
@@ -74,13 +68,14 @@
 <body>
     <h1>智能測驗 第一題 六角形</h1>
     <button type="button" onclick="init()">開啟偵測</button>
+    <button type="button" onclick="switchCamera()">切換鏡頭</button>
     <div id="webcam-container"></div>
     <div id="label-container"></div>
 
     <script>
         const URL = "./"; // Model directory
-
         let model, webcam, labelContainer, maxPredictions;
+        let useFrontCamera = true; // 預設使用前鏡頭
 
         async function init() {
             try {
@@ -91,16 +86,10 @@
                 model = await tmImage.load(modelURL, metadataURL);
                 maxPredictions = model.getTotalClasses();
 
-                // Setup the webcam
-                const flip = true; // Flip the webcam
-                webcam = new tmImage.Webcam(200, 200, flip);
-                await webcam.setup(); // Request access to the webcam
-                await webcam.play();
-                window.requestAnimationFrame(loop);
+                await setupWebcam();
 
-                // Append webcam canvas to the DOM
-                document.getElementById("webcam-container").appendChild(webcam.canvas);
                 labelContainer = document.getElementById("label-container");
+                labelContainer.innerHTML = ""; // 清除舊的標籤
 
                 // Create div elements for each prediction
                 for (let i = 0; i < maxPredictions; i++) {
@@ -126,8 +115,24 @@
             }
         }
 
+        async function setupWebcam() {
+            if (webcam) {
+                webcam.stop(); // 停止當前的攝影機
+            }
+
+            const flip = useFrontCamera; // 如果使用前鏡頭則翻轉
+            webcam = new tmImage.Webcam(200, 200, flip);
+            await webcam.setup({ facingMode: useFrontCamera ? "user" : "environment" }); // 設定前/後鏡頭
+            await webcam.play();
+            window.requestAnimationFrame(loop);
+
+            // 清除舊的攝影機畫面，重新加入新的
+            document.getElementById("webcam-container").innerHTML = "";
+            document.getElementById("webcam-container").appendChild(webcam.canvas);
+        }
+
         async function loop() {
-            webcam.update(); // Update the webcam frame
+            webcam.update(); // 更新攝影機影像
             await predict();
             window.requestAnimationFrame(loop);
         }
@@ -142,6 +147,11 @@
                 progressBar.style.width = `${(prediction[i].probability * 100).toFixed(2)}%`;
                 progressBar.textContent = `${(prediction[i].probability * 100).toFixed(1)}%`;
             }
+        }
+
+        function switchCamera() {
+            useFrontCamera = !useFrontCamera; // 切換前/後鏡頭
+            setupWebcam(); // 重新啟動攝影機
         }
     </script>
 </body>

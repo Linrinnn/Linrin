@@ -76,6 +76,7 @@
         const URL = "./"; // Model directory
         let model, webcam, labelContainer, maxPredictions;
         let useFrontCamera = true; // 預設使用前鏡頭
+        let animationId; // 追蹤 requestAnimationFrame ID，確保只有一個循環
 
         async function init() {
             try {
@@ -124,7 +125,12 @@
             webcam = new tmImage.Webcam(200, 200, flip);
             await webcam.setup({ facingMode: useFrontCamera ? "user" : "environment" }); // 設定前/後鏡頭
             await webcam.play();
-            window.requestAnimationFrame(loop);
+
+            // 如果之前有循環正在進行，先取消避免重複執行
+            if (animationId) {
+                cancelAnimationFrame(animationId);
+            }
+            animationId = window.requestAnimationFrame(loop);
 
             // 清除舊的攝影機畫面，重新加入新的
             document.getElementById("webcam-container").innerHTML = "";
@@ -134,7 +140,7 @@
         async function loop() {
             webcam.update(); // 更新攝影機影像
             await predict();
-            window.requestAnimationFrame(loop);
+            animationId = window.requestAnimationFrame(loop);
         }
 
         async function predict() {
@@ -149,9 +155,9 @@
             }
         }
 
-        function switchCamera() {
+        async function switchCamera() {
             useFrontCamera = !useFrontCamera; // 切換前/後鏡頭
-            setupWebcam(); // 重新啟動攝影機
+            await setupWebcam(); // 重新啟動攝影機，等待攝影機設定完成
         }
     </script>
 </body>
